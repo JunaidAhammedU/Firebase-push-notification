@@ -1,9 +1,9 @@
+// src/notification/notification.module.ts
 import { Module } from '@nestjs/common';
-import { FirebaseService } from './firebase.service';
-import { FirebaseController } from './firebase.controller';
-
+import { FcmService } from './firebase.service';
+import { NotificationController } from './firebase.controller';
 @Module({
-  controllers: [FirebaseController],
-  providers: [FirebaseService],
+  controllers: [NotificationController],
+  providers: [FcmService],
 })
-export class FirebaseModule {}
+export class NotificationModule {}

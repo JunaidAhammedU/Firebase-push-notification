@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFirebaseDto } from './dto/create-firebase.dto';
-import { UpdateFirebaseDto } from './dto/update-firebase.dto';
+import * as admin from 'firebase-admin';
+
+export interface NotificationPayload {
+  title: string;
+  body: string;
+  data?: { [key: string]: string };
+}
 
 @Injectable()
-export class FirebaseService {
-  create(createFirebaseDto: CreateFirebaseDto) {
-    return 'This action adds a new firebase';
+export class FcmService {
+  constructor() {
+    const serviceAccount = 'sas'; // require('../serviceAccountKey.json');
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
   }
 
-  findAll() {
-    return `This action returns all firebase`;
-  }
+  async sendNotification(
+    deviceToken: string,
+    payload: NotificationPayload,
+  ): Promise<string> {
+    const message = {
+      token: deviceToken,
+      notification: {
+        title: payload.title,
+        body: payload.body,
+      },
+      data: payload.data,
+    };
 
-  findOne(id: number) {
-    return `This action returns a #${id} firebase`;
-  }
-
-  update(id: number, updateFirebaseDto: UpdateFirebaseDto) {
-    return `This action updates a #${id} firebase`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} firebase`;
+    try {
+      const response = await admin.messaging().send(message);
+      console.log('Successfully sent message:', response);
+      return response;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw new Error(error);
+    }
   }
 }
